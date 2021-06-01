@@ -76,7 +76,7 @@ def main():
         specimen = video.specimen(1, 10)
         vid_specimen = FFInterpreter(specimen)
         heights = [144, 240, 360, 480, 720, 1080]
-        crfs = list(range(17, 50))
+        crfs = list(range(17, 20))
         # num_encode = len(crfs)
         # num_encode = 1
         # encode_out = [TempFile.out(video.filename, j) for j in range(num_encode)]
