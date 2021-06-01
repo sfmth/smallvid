@@ -1,0 +1,10 @@
+.cache/
+.venv/
+.idea/
+ffmpeg-4.4-amd64-static/
+sample-vids/
+ffprobe_out
+ffprobe_help
+ffmpeg-release-amd64-static.tar.xz 
+
+
