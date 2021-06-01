@@ -76,7 +76,7 @@ def main():
         specimen = video.specimen(1, 10)
         vid_specimen = FFInterpreter(specimen)
         heights = [144, 240, 360, 480, 720, 1080]
-        crfs = list(range(17, 20))
+        crfs = list(range(17, 50))
         # num_encode = len(crfs)
         # num_encode = 1
         # encode_out = [TempFile.out(video.filename, j) for j in range(num_encode)]
@@ -85,13 +85,12 @@ def main():
         for height in heights:
             ssims[height]: list = []
             sizes[height]: list = []
-
+        print("1")
         fig = plt.figure(figsize=(5, 5), dpi=100)
         axes_1 = fig.add_axes([0.1, 0.1, 0.9, 0.9])
         axes_1.set_xlabel('CRF')
         axes_1.set_ylabel('SSIM')
         axes_1.set_title('Quality over CRFs')
-
         for height in heights:
             if vid_specimen.calc_width(height):
                 for crf in crfs:
@@ -244,7 +243,7 @@ class FFConsts:
     """
     FF_DIR = './ffmpeg-4.4-amd64-static/'
     CACHE = '.cache/'
-    VERBOSE = False
+    VERBOSE = True
     FFPROBE_ARGS = ('-hide_banner', '-show_format', '-show_streams', '-v', 'quiet', '-of', 'json')
     VQA_comparison = 0
 
