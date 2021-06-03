@@ -6,7 +6,9 @@ import tempfile
 import random
 import time
 import concurrent.futures
+import matplotlib
 import matplotlib.pyplot as plt
+matplotlib.use('wxAgg')
 
 
 def main():
@@ -54,7 +56,10 @@ def main():
     # print(FFInterpreter.ssim(specimen, encode_out_3))
     # print(vid_encoded_3.size)
 
-    for i in range(19):
+    ssims_all: list = []
+    sizes_all: list = []
+
+    for i in range(18, 19):
         if i == 1:
             break
         print(f'{PrintFormat.BOLD}\nVideo number ' + str(i) + f':{PrintFormat.ENDC}')
@@ -76,7 +81,8 @@ def main():
         specimen = video.specimen(1, 10)
         vid_specimen = FFInterpreter(specimen)
         heights = [144, 240, 360, 480, 720, 1080]
-        crfs = list(range(17, 50))
+        presets = ["medium", "fast", "faster", "veryfast", "superfast", "ultrafast"]
+        crfs = list(range(17, 50, 30))
         # num_encode = len(crfs)
         # num_encode = 1
         # encode_out = [TempFile.out(video.filename, j) for j in range(num_encode)]
@@ -85,25 +91,42 @@ def main():
         for height in heights:
             ssims[height]: list = []
             sizes[height]: list = []
-        print("1")
-        fig = plt.figure(figsize=(5, 5), dpi=100)
-        axes_1 = fig.add_axes([0.1, 0.1, 0.9, 0.9])
+        for preset in presets:
+            ssims[preset]: list = []
+            sizes[preset]: list = []
+
+        fig = plt.figure()
+        axes_1 = fig.add_axes([0.15, 0.15, 0.75, 0.75])
         axes_1.set_xlabel('CRF')
         axes_1.set_ylabel('SSIM')
         axes_1.set_title('Quality over CRFs')
-        for height in heights:
-            if vid_specimen.calc_width(height):
-                for crf in crfs:
-                    encode_out = TempFile.out(video.filename, crf + height)
-                    vid_specimen.h264encode(encode_out, crf, size=vid_specimen.calc_width(height))
-                    ssims[height].append(FFInterpreter.ssim(specimen, encode_out))
-                    vid_encoded = FFInterpreter(encode_out)
-                    sizes[height].append(vid_encoded.size)
-                label = str(height) + 'p'
-                axes_1.plot(crfs, ssims[height], label=label)
+
+        # for height in heights:
+        #     if vid_specimen.calc_width(height):
+        #         for crf in crfs:
+        #             encode_out = TempFile.out(video.filename, crf + height)
+        #             vid_specimen.h264encode(encode_out, crf, size=vid_specimen.calc_width(height))
+        #             ssims[height].append(FFInterpreter.ssim(specimen, encode_out))
+        #             vid_encoded = FFInterpreter(encode_out)
+        #             sizes[height].append(vid_encoded.size)
+        #         label = str(height) + 'p'
+        #         axes_1.plot(crfs, ssims[height], label=label)
+
+        for preset in presets:
+            for crf in crfs:
+                encode_out = TempFile.out(video.filename + preset, crf)
+                vid_specimen.h264encode(encode_out, crf, preset=preset)
+                ssims[preset].append(FFInterpreter.ssim(specimen, encode_out))
+                vid_encoded = FFInterpreter(encode_out)
+                sizes[preset].append(vid_encoded.size)
+            label = preset
+            axes_1.plot(crfs, ssims[preset], label=label)
 
         axes_1.set_xlim(xmin=crfs[0])
         axes_1.legend(loc=0)
+        plt.grid(True, 'both', 'both')
+        plt.savefig(TempFile.pltout("plot", 0))
+
         plt.show()
 
 
@@ -176,6 +199,10 @@ class TempFile:
     @staticmethod
     def out(name, i):
         return FFConsts.CACHE + "Temp_out_" + name + "_" + TempFile.randhex() + f"_{str(i)}_" + ".mkv"
+
+    @staticmethod
+    def pltout(name, i):
+        return FFConsts.CACHE + "Temp_pltout_" + name + "_" + TempFile.randhex() + f"_{str(i)}_" + ".png"
 
     @staticmethod
     def specimen(name: str = ""):
